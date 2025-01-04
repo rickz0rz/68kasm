@@ -113,12 +113,12 @@ public static class InstructionUtilities
             throw new Exception("Size is required for ParseMode111_001");
         
         var sizeBits = size.Value & 0b11;
-        return sizeBits switch
+        return "#" + sizeBits switch
         {
             // For byte operation, grab 16 bits and only use last 8.
-            0b01 => FormatValue(ParseWord(hunk, hunkSectionId, ref pc, extraBytesUsed) & 0b11111111),
-            0b11 => FormatValue(ParseWord(hunk, hunkSectionId, ref pc, extraBytesUsed)),
-            0b10 => FormatValue(ParseLongWord(hunk, hunkSectionId, ref pc, extraBytesUsed)),
+            0b01 => FormatValue(ParseWord(hunk, hunkSectionId, ref pc, extraBytesUsed) & 0b11111111, 2),
+            0b11 => FormatValue(ParseWord(hunk, hunkSectionId, ref pc, extraBytesUsed), 4),
+            0b10 => FormatValue(ParseLongWord(hunk, hunkSectionId, ref pc, extraBytesUsed), 8),
             _ => $"Unknown_{sizeBits:b2}"
         };
     }

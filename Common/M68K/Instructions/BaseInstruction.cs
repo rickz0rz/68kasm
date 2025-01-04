@@ -95,23 +95,31 @@ public class BaseInstruction
         
         foreach (var cachedInstruction in _cachedInstructions)
         {
-            var isMatchingInstruction = (bool)cachedInstruction.GetMethod("IsInstruction", [typeof(string)])
-                .Invoke(null, [opcode]);
+            try
+            {
+                var isMatchingInstruction = (bool)cachedInstruction.GetMethod("IsInstruction", [typeof(string)])
+                    .Invoke(null, [opcode]);
 
-            if (!isMatchingInstruction)
-                continue;
+                if (!isMatchingInstruction)
+                    continue;
 
-            var constructorInfo = cachedInstruction.GetConstructor([typeof(string[])]);
+                var constructorInfo = cachedInstruction.GetConstructor([typeof(string)]);
 
-            // This is fun. You have to use an array and copy the value back when you're done
-            // if doing an invoke with a ref. See: https://stackoverflow.com/a/8779762
-            object[] args = [keywords];
-            var foundInstruction = (BaseInstruction)constructorInfo.Invoke(args);
-            // pc = (int)args[2];
+                // This is fun. You have to use an array and copy the value back when you're done
+                // if doing an invoke with a ref. See: https://stackoverflow.com/a/8779762
+                object[] args = [assembly];
+                var foundInstruction = (BaseInstruction)constructorInfo.Invoke(args);
+                // pc = (int)args[2];
 
-            // Would be neat to make this somehow work from the base constructor?
-            //foundInstruction.ParseSpecificInstruction(hunk, hunkSectionNumber, ref pc);
-            return foundInstruction;
+                // Would be neat to make this somehow work from the base constructor?
+                //foundInstruction.ParseSpecificInstruction(hunk, hunkSectionNumber, ref pc);
+                return foundInstruction;
+            }
+            catch (Exception ex)
+            {
+                // Very much a WIP here so lots to break.
+                Console.WriteLine(ex.Message);
+            }
         }
 
         throw new NotImplementedException($"FromAssembly not implemented yet: {assembly}");
