@@ -34,7 +34,7 @@ public class BlockDisassembler
             var shouldContinue = true;
             while (pc < hunkSection.Data.Count && shouldContinue)
             {
-                Console.WriteLine(BaseInstruction.FromBytes(hunk, hunkSectionNumber, ref pc).ToString());
+                Console.WriteLine(BaseInstruction.FromHunk(hunk, hunkSectionNumber, ref pc).ToString());
                 // stringBuilder.AppendLine(BaseInstruction.FromBytes(hunk, hunkSectionNumber, ref pc).ToString());
             }
             

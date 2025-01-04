@@ -6,10 +6,19 @@ public static class TestHelpers
 {
     public static void RunFullTest(string assembly, string bytesString)
     {
-        RunDisassemblyTest(assembly, bytesString);
+        if (assembly.Equals("NOP", StringComparison.InvariantCultureIgnoreCase))
+        {
+            RunAssemblyTest(assembly, bytesString);
+        }
         
-        // Assemble.
-        // Common.M68K.Instructions.BaseInstruction.FromAssembly(assembly, ref pc);
+        RunDisassemblyTest(assembly, bytesString);
+    }
+
+    private static void RunAssemblyTest(string assembly, string bytesString)
+    {
+        var instruction = Common.M68K.Instructions.BaseInstruction.FromAssembly(assembly);
+        var generatedByteString = Convert.ToHexString(instruction.ToBytes().ToArray());
+        Assert.That(generatedByteString, Is.EqualTo(bytesString));
     }
 
     private static void RunDisassemblyTest(string assembly, string bytesString)
@@ -27,7 +36,7 @@ public static class TestHelpers
         };
 
         var pc = 0;
-        var instruction = Common.M68K.Instructions.BaseInstruction.FromBytes(hunk, 0, ref pc);
+        var instruction = Common.M68K.Instructions.BaseInstruction.FromHunk(hunk, 0, ref pc);
         
         Assert.That(instruction.ToAssembly(), Is.EqualTo(assembly));
         Assert.That(instruction.ToString(), Is.EqualTo($"{assembly} ;0x000000: {bytesString}"));
