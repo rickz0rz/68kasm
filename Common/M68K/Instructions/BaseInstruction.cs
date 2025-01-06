@@ -49,9 +49,11 @@ public class BaseInstruction
         }
     }
     
-    public static BaseInstruction FromHunk(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public static BaseInstruction FromHunk(Hunk hunk, int hunkSectionNumber, int offset)
     {
         CheckForCachedInstructions();
+
+        var pc = offset;
 
         // The PC from this is incremented in the instantiation of the instruction so don't
         // increment it here.. think of this as a 'peek'.
@@ -140,7 +142,7 @@ public class BaseInstruction
         throw new NotImplementedException($"Print instruction not implemented yet: {Instruction:X4}");
     }
 
-    public virtual List<byte> GetNextOffsetAddresses()
+    public virtual List<int> GetNextOffsetAddresses()
     {
         // Get the address, add 2 (for the initial instruction) and add the extra bytes.
         // If we do this, do we even have to pass the pc by ref? that'd let us rip through
@@ -149,7 +151,7 @@ public class BaseInstruction
         // For jumps, just return the address if we can calculate it.
         // In the main level, create a map of all traversed memory addresses and anything not
         // traversed by the end is considered raw data/DC
-        return [(byte)(Address + 2 + ExtraInstructionBytes.Count)];
+        return [Address + 2 + ExtraInstructionBytes.Count];
     }
 
     public override string ToString()

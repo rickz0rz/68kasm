@@ -36,11 +36,15 @@ public class BlockDisassembler
             stringBuilder.AppendLine("; -------------");
             
             // Iterate through the instructions.
-            var pc = 0;
+            var offset = 0;
             var shouldContinue = true;
-            while (pc < hunkSection.Data.Count && shouldContinue)
+
+            while (offset < hunkSection.Data.Count && shouldContinue)
             {
-                Console.WriteLine(BaseInstruction.FromHunk(hunk, hunkSectionNumber, ref pc).ToString());
+                var instruction = BaseInstruction.FromHunk(hunk, hunkSectionNumber, offset);
+                offset = instruction.GetNextOffsetAddresses().First();
+
+                Console.WriteLine(instruction.ToString());
             }
             
             hunkSectionNumber++;
