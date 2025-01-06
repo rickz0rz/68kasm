@@ -35,8 +35,7 @@ public static class TestHelpers
             }
         };
 
-        var pc = 0;
-        var instruction = Common.M68K.Instructions.BaseInstruction.FromHunk(hunk, 0, ref pc);
+        var instruction = Common.M68K.Instructions.BaseInstruction.FromHunk(hunk, 0, 0);
         
         Assert.That(instruction.ToAssembly(), Is.EqualTo(assembly));
         Assert.That(instruction.ToString(), Is.EqualTo($"{assembly} ;0x000000: {bytesString}"));
