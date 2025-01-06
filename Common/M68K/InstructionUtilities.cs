@@ -98,7 +98,7 @@ public static class InstructionUtilities
             0b111 when (register & 0b111) == 0b001 =>
                 $"#${ParseLongWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X8}",
             0b111 when (register & 0b111) == 0b100 =>
-                ParseMode111_100(hunk, hunkSectionId, ref pc, extraBytesUsed, size),
+                Parse_Mode111_Register100(hunk, hunkSectionId, ref pc, extraBytesUsed, size),
             0b111 when (register & 0b111) == 0b010 =>
                 $"${ParseTwosComplementWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X}(PC)",
             // Missing: 0b111 0b011
@@ -106,11 +106,11 @@ public static class InstructionUtilities
         };
     }
 
-    private static string ParseMode111_100(Hunk hunk, int hunkSectionId,
+    private static string Parse_Mode111_Register100(Hunk hunk, int hunkSectionId,
         ref int pc, List<byte> extraBytesUsed, int? size)
     {
         if (size is null)
-            throw new Exception("Size is required for ParseMode111_001");
+            throw new Exception("Size is required for Parsing Mode 111/Register 001");
         
         var sizeBits = size.Value & 0b11;
         return "#" + sizeBits switch

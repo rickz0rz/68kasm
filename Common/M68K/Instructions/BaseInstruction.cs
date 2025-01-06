@@ -140,6 +140,18 @@ public class BaseInstruction
         throw new NotImplementedException($"Print instruction not implemented yet: {Instruction:X4}");
     }
 
+    public virtual List<byte> GetNextOffsetAddresses()
+    {
+        // Get the address, add 2 (for the initial instruction) and add the extra bytes.
+        // If we do this, do we even have to pass the pc by ref? that'd let us rip through
+        // multiple paths simultaneously.
+        // For branches we can call base.GetNextOffsetAddresses and add the branch address too.
+        // For jumps, just return the address if we can calculate it.
+        // In the main level, create a map of all traversed memory addresses and anything not
+        // traversed by the end is considered raw data/DC
+        return [(byte)(Address + 2 + ExtraInstructionBytes.Count)];
+    }
+
     public override string ToString()
     {
         var stringBuilder = new StringBuilder();

@@ -7,6 +7,12 @@ public class BlockDisassembler
 {
     public static string Disassemble(Hunk hunk)
     {
+        // Todo:
+        // - Create a map of all addresses in all sections
+        // - Prefill the map with known PC offsets from emulation
+        // - Fill the map up slowly with instructions as they're parsed
+        // - Fill gaps with DC
+
         var stringBuilder = new StringBuilder();
         
         var hunkSectionNumber = 0;
@@ -35,7 +41,6 @@ public class BlockDisassembler
             while (pc < hunkSection.Data.Count && shouldContinue)
             {
                 Console.WriteLine(BaseInstruction.FromHunk(hunk, hunkSectionNumber, ref pc).ToString());
-                // stringBuilder.AppendLine(BaseInstruction.FromBytes(hunk, hunkSectionNumber, ref pc).ToString());
             }
             
             hunkSectionNumber++;
@@ -43,50 +48,5 @@ public class BlockDisassembler
         }
 
         return stringBuilder.ToString();
-    }
-
-    private static string ParseAbsoluteAddress(int instruction, HunkSection hunkSection, int pc, List<byte> extraBytesUsed)
-    {
-        var destRegister = $"A{(instruction >> 9) & 0b111}";
-
-        var addressingMode = (instruction >> 3) & 0b111;
-        var addressingModeRegister = (instruction & 0b111);
-
-        var sourceAddress = "";
-        int address = 0;
-        
-        switch (addressingMode)
-        {
-            case 0b111 when (addressingModeRegister & 0b111) == 0b000:
-                // Read 2 bytes in.
-                extraBytesUsed.Add(hunkSection.Data[pc + 2]);
-                extraBytesUsed.Add(hunkSection.Data[pc + 3]);
-                
-                // Convert that to an address.
-                address = extraBytesUsed[0] * 256 + 
-                          extraBytesUsed[1];
-                            
-                sourceAddress = $"${address:X4}";
-                break;
-            case 0b111 when (addressingModeRegister & 0b111) == 0b001:
-                // Read 4 bytes in
-                extraBytesUsed.Add(hunkSection.Data[pc + 2]);
-                extraBytesUsed.Add(hunkSection.Data[pc + 3]);
-                extraBytesUsed.Add(hunkSection.Data[pc + 4]);
-                extraBytesUsed.Add(hunkSection.Data[pc + 5]);
-                            
-                // Convert that to an address.
-                address = extraBytesUsed[0] * 256 * 256 * 256 + 
-                          extraBytesUsed[1] * 256 * 256 + 
-                          extraBytesUsed[2] * 256 + 
-                          extraBytesUsed[3];
-                            
-                sourceAddress = $"${address:X8}";
-                break;
-            default:
-                throw new NotImplementedException($"Addressing mode: {addressingMode:b3}, addressing mode register: {addressingModeRegister:b3}");
-        }
-        
-        return sourceAddress;
     }
 }
