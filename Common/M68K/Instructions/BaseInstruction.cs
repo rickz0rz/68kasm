@@ -11,6 +11,7 @@ public class BaseInstruction
 
     // Label should probably be a list created post-disassembly before it's printed out.
     public string? Label { get; set; }
+    public int HunkSectionNumber { get; set; }
     public int Address { get; set; }
     public int Instruction { get; set; }
     public List<byte> ExtraInstructionBytes { get; set; }
@@ -23,6 +24,7 @@ public class BaseInstruction
     protected BaseInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         Address = pc;
+        HunkSectionNumber = hunkSectionNumber;
         Label = null;
         Instruction = (hunk.HunkSections[hunkSectionNumber].Data[pc] << 8) +
                       hunk.HunkSections[hunkSectionNumber].Data[pc + 1];
@@ -47,6 +49,11 @@ public class BaseInstruction
                 }
             }
         }
+    }
+
+    public static BaseInstruction FromHunk(Hunk hunk, SectionOffset sectionOffset)
+    {
+        return FromHunk(hunk, sectionOffset.HunkSectionNumber, sectionOffset.Offset);
     }
     
     public static BaseInstruction FromHunk(Hunk hunk, int hunkSectionNumber, int offset)
@@ -142,7 +149,7 @@ public class BaseInstruction
         throw new NotImplementedException($"Print instruction not implemented yet: {Instruction:X4}");
     }
 
-    public virtual List<int> GetNextOffsetAddresses()
+    public virtual List<SectionOffset> GetNextOffsetAddresses()
     {
         // Get the address, add 2 (for the initial instruction) and add the extra bytes.
         // If we do this, do we even have to pass the pc by ref? that'd let us rip through
@@ -151,7 +158,14 @@ public class BaseInstruction
         // For jumps, just return the address if we can calculate it.
         // In the main level, create a map of all traversed memory addresses and anything not
         // traversed by the end is considered raw data/DC
-        return [Address + 2 + ExtraInstructionBytes.Count];
+        return
+        [
+            new SectionOffset()
+            {
+                HunkSectionNumber = HunkSectionNumber,
+                Offset = Address + 2 + ExtraInstructionBytes.Count
+            }
+        ];
     }
 
     public override string ToString()

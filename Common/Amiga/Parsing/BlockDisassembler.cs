@@ -1,4 +1,5 @@
 using System.Text;
+using Common.M68K;
 using Common.M68K.Instructions;
 
 namespace Common.Amiga.Parsing;
@@ -16,7 +17,7 @@ public class BlockDisassembler
         var stringBuilder = new StringBuilder();
 
         var hunkSectionNumber = 0;
-        var instructionMap = new Dictionary<(int hunkSectionNumber, int offset), BaseInstruction>();
+        var instructionMap = new Dictionary<SectionOffset, BaseInstruction>();
 
         foreach (var hunkSection in hunk.HunkSections)
         {
@@ -47,7 +48,7 @@ public class BlockDisassembler
                 // Only start this on section 0, section 1+ doesn't auto-start @ 0x0
                 if (hunkSectionNumber == 0)
                 {
-                    ParseInstruction(hunk, hunkSectionNumber, 0, instructionMap);
+                    ParseInstruction(hunk, new SectionOffset { HunkSectionNumber = hunkSectionNumber, Offset = 0 }, instructionMap);
                 }
             }
             catch (Exception e)
@@ -55,9 +56,9 @@ public class BlockDisassembler
                 Console.WriteLine(e);
             }
 
-            foreach (var instructionAddress in instructionMap.Keys.Order())
+            foreach (var instructionAddress in instructionMap.Keys.OrderBy(t => t.Offset))
             {
-                if (instructionAddress.hunkSectionNumber == hunkSectionNumber)
+                if (instructionAddress.HunkSectionNumber == hunkSectionNumber)
                 {
                     stringBuilder.AppendLine(instructionMap[instructionAddress].ToString());
                 }
@@ -70,21 +71,21 @@ public class BlockDisassembler
         return stringBuilder.ToString();
     }
 
-    private static void ParseInstruction(Hunk hunk, int hunkSectionNumber, int offset,
-        Dictionary<(int hunkSectionNumber, int offset), BaseInstruction> instructionMap)
+    private static void ParseInstruction(Hunk hunk, SectionOffset sectionOffset,
+        Dictionary<SectionOffset, BaseInstruction> instructionMap)
     {
         // If we've previously discovered this offset, abort.
-        if (instructionMap.ContainsKey((hunkSectionNumber, offset)))
+        if (instructionMap.ContainsKey(sectionOffset))
             return;
 
         try
         {
-            var instruction = BaseInstruction.FromHunk(hunk, hunkSectionNumber, offset);
-            instructionMap.Add((hunkSectionNumber, offset), instruction);
+            var instruction = BaseInstruction.FromHunk(hunk, sectionOffset);
+            instructionMap.Add(sectionOffset, instruction);
 
             foreach (var nextOffsetAddress in instruction.GetNextOffsetAddresses())
             {
-                ParseInstruction(hunk, hunkSectionNumber, nextOffsetAddress, instructionMap);
+                ParseInstruction(hunk, nextOffsetAddress, instructionMap);
             }
         }
         catch (Exception e)
