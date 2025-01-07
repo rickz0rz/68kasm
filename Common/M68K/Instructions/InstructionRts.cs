@@ -30,6 +30,13 @@ public class InstructionRts : BaseInstruction
     {
     }
 
+    public override List<int> GetNextOffsetAddresses()
+    {
+        // This is actually more complex. RTS returns, but since when we do JTS we're branching out at both the
+        // jumped instruction and the next instruction, let's just return an empty list.
+        return [];
+    }
+
     public override List<byte> ToBytes()
     {
         return [0x4E, 75];
