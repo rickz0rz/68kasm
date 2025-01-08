@@ -2,6 +2,8 @@ using Common.Amiga;
 
 namespace Common.M68K.Instructions;
 
+// DBcc = Decrement and Branch, Conditionally
+// https://68k.hax.com/DBccDBRA
 public class InstructionDbcc : BaseInstruction
 {
     private const string InstructionNameDbf = "DBF";

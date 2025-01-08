@@ -51,9 +51,9 @@ public class BaseInstruction
         }
     }
 
-    public static BaseInstruction FromHunk(Hunk hunk, SectionOffset sectionOffset)
+    public static BaseInstruction FromHunk(Hunk hunk, SectionAddress sectionAddress)
     {
-        return FromHunk(hunk, sectionOffset.HunkSectionNumber, sectionOffset.Offset);
+        return FromHunk(hunk, sectionAddress.SectionNumber, sectionAddress.Address);
     }
     
     public static BaseInstruction FromHunk(Hunk hunk, int hunkSectionNumber, int offset)
@@ -149,7 +149,7 @@ public class BaseInstruction
         throw new NotImplementedException($"Print instruction not implemented yet: {Instruction:X4}");
     }
 
-    public virtual List<SectionOffset> GetNextOffsetAddresses()
+    public virtual List<SectionAddress> GetNextOffsetAddresses()
     {
         // Get the address, add 2 (for the initial instruction) and add the extra bytes.
         // If we do this, do we even have to pass the pc by ref? that'd let us rip through
@@ -160,10 +160,10 @@ public class BaseInstruction
         // traversed by the end is considered raw data/DC
         return
         [
-            new SectionOffset()
+            new SectionAddress()
             {
-                HunkSectionNumber = HunkSectionNumber,
-                Offset = Address + 2 + ExtraInstructionBytes.Count
+                SectionNumber = HunkSectionNumber,
+                Address = Address + 2 + ExtraInstructionBytes.Count
             }
         ];
     }

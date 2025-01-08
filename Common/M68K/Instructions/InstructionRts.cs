@@ -30,7 +30,7 @@ public class InstructionRts : BaseInstruction
     {
     }
 
-    public override List<SectionOffset> GetNextOffsetAddresses()
+    public override List<SectionAddress> GetNextOffsetAddresses()
     {
         // This is actually more complex. RTS returns, but since when we do JTS we're branching out at both the
         // jumped instruction and the next instruction, let's just return an empty list.

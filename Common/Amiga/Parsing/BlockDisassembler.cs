@@ -17,7 +17,7 @@ public class BlockDisassembler
         var stringBuilder = new StringBuilder();
 
         var hunkSectionNumber = 0;
-        var instructionMap = new Dictionary<SectionOffset, BaseInstruction>();
+        var instructionMap = new Dictionary<SectionAddress, BaseInstruction>();
 
         foreach (var hunkSection in hunk.HunkSections)
         {
@@ -48,7 +48,7 @@ public class BlockDisassembler
                 // Only start this on section 0, section 1+ doesn't auto-start @ 0x0
                 if (hunkSectionNumber == 0)
                 {
-                    ParseInstruction(hunk, new SectionOffset { HunkSectionNumber = hunkSectionNumber, Offset = 0 }, instructionMap);
+                    ParseInstruction(hunk, new SectionAddress { SectionNumber = hunkSectionNumber, Address = 0 }, instructionMap);
                 }
             }
             catch (Exception e)
@@ -56,9 +56,9 @@ public class BlockDisassembler
                 Console.WriteLine(e);
             }
 
-            foreach (var instructionAddress in instructionMap.Keys.OrderBy(t => t.Offset))
+            foreach (var instructionAddress in instructionMap.Keys.OrderBy(t => t.Address))
             {
-                if (instructionAddress.HunkSectionNumber == hunkSectionNumber)
+                if (instructionAddress.SectionNumber == hunkSectionNumber)
                 {
                     stringBuilder.AppendLine(instructionMap[instructionAddress].ToString());
                 }
@@ -71,17 +71,17 @@ public class BlockDisassembler
         return stringBuilder.ToString();
     }
 
-    private static void ParseInstruction(Hunk hunk, SectionOffset sectionOffset,
-        Dictionary<SectionOffset, BaseInstruction> instructionMap)
+    private static void ParseInstruction(Hunk hunk, SectionAddress sectionAddress,
+        Dictionary<SectionAddress, BaseInstruction> instructionMap)
     {
         // If we've previously discovered this offset, abort.
-        if (instructionMap.ContainsKey(sectionOffset))
+        if (instructionMap.ContainsKey(sectionAddress))
             return;
 
         try
         {
-            var instruction = BaseInstruction.FromHunk(hunk, sectionOffset);
-            instructionMap.Add(sectionOffset, instruction);
+            var instruction = BaseInstruction.FromHunk(hunk, sectionAddress);
+            instructionMap.Add(sectionAddress, instruction);
 
             foreach (var nextOffsetAddress in instruction.GetNextOffsetAddresses())
             {
