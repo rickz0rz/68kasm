@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -8,7 +9,7 @@ public class InstructionPea : BaseInstruction
     private const int InstMask = 0b1111_1111_1100_0000;
     private const int InstMaskTarget = 0b0100_1000_0100_0000;
     
-    private string _src;
+    private BaseAddress _src;
 
     public InstructionPea(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {

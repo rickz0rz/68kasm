@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -9,7 +10,7 @@ public class InstructionClr : BaseInstruction
     private const int InstMaskTarget = 0b0100001000000000;
 
     private string _size;
-    private string _source;
+    private BaseAddress _source;
 
     public InstructionClr(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {

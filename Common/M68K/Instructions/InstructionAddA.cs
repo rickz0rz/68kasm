@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -8,10 +9,10 @@ public class InstructionAddA : BaseInstruction
     private const int InstMask = 0b1111_0000_0000_0000;
     private const int InstMaskTarget = 0b1101_0000_0000_0000;
 
-    private string _register;
+    private BaseAddress _register;
     private string _size;
     private bool _isRegisterFirst;
-    private string _source;
+    private BaseAddress _source;
 
     public InstructionAddA(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {
@@ -32,7 +33,7 @@ public class InstructionAddA : BaseInstruction
             0b111 => ".L",
             _ => $".Unknown_{(Instruction >> 6) & 0b11:b2}"
         };
-        _register = $"A{(Instruction >> 9) & 0b111}";
+        _register = new GenericStringAddress($"A{(Instruction >> 9) & 0b111}");
         _source = InstructionUtilities.ParseSourceAddress(Instruction, hunk, hunkSectionNumber, ref pc,
             ExtraInstructionBytes);
     }

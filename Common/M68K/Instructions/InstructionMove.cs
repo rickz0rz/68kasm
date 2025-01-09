@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -9,8 +10,8 @@ public class InstructionMove : BaseInstruction
     private const int InstMaskTarget = 0b0000_0000_0000_0000;
     
     private string _size;
-    private string _src;
-    private string _dest;
+    private BaseAddress _src;
+    private BaseAddress _dest;
     
     public InstructionMove(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {

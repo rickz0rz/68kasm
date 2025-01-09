@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -6,13 +7,17 @@ namespace Common.M68K.Instructions;
 // https://68k.hax.com/DBccDBRA
 public class InstructionDbcc : BaseInstruction
 {
-    private const string InstructionNameDbf = "DBF";
+    private enum DbccInstructionVariation
+    {
+        DBF
+    };
+
     private const int InstMask = 0b1111000011111000;
     private const int InstMaskTarget = 0b0101000011001000;
     
-    private string _instructionName;
-    private string _counterRegister;
-    private int _displacement;
+    private DbccInstructionVariation _dbccInstructionName;
+    private BaseAddress _counterRegister;
+    private BaseAddress _displacement;
 
     public InstructionDbcc(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {
@@ -20,8 +25,8 @@ public class InstructionDbcc : BaseInstruction
 
     public static bool IsInstruction(string opcode)
     {
-        return new[] { InstructionNameDbf }
-            .Any(opcode => opcode.Equals(opcode, StringComparison.InvariantCultureIgnoreCase));
+        return Enum.GetValues<DbccInstructionVariation>()
+            .Any(variation => opcode.Equals(variation.ToString(), StringComparison.OrdinalIgnoreCase));
     }
 
     public static bool IsInstruction(int instruction)
@@ -32,19 +37,19 @@ public class InstructionDbcc : BaseInstruction
     public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         var conditionBits = (Instruction >> 8) & 0b1111;
-        _instructionName = conditionBits switch
+        _dbccInstructionName = conditionBits switch
         {
-            1 => InstructionNameDbf,
-            _ => $"Unhandled_{conditionBits:b4}"
+            1 => DbccInstructionVariation.DBF,
+            _ => throw new Exception($"Unhandled condition bits: {conditionBits:b4}")
         };
         
-        _counterRegister = $"D{Instruction & 0b111}";
+        _counterRegister = new GenericStringAddress($"D{Instruction & 0b111}");
         _displacement =
-            InstructionUtilities.ParseTwosComplementWord(hunk, hunkSectionNumber, ref pc, ExtraInstructionBytes);
+            new GenericStringAddress(InstructionUtilities.ParseTwosComplementWord(hunk, hunkSectionNumber, ref pc, ExtraInstructionBytes).ToString());
     }
 
     public override string ToAssembly()
     {
-        return $"{_instructionName} {_counterRegister},{_displacement}";
+        return $"{_dbccInstructionName} {_counterRegister},{_displacement}";
     }
 }

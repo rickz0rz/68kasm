@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K;
 
@@ -65,7 +66,7 @@ public static class InstructionUtilities
         return ((value >> 15) & 1) == 1 ? -1 - (value ^ 0xFFFF) : value;
     }
 
-    public static string ParseDestinationAddress(int instruction, Hunk hunk, int hunkSectionId,
+    public static BaseAddress ParseDestinationAddress(int instruction, Hunk hunk, int hunkSectionId,
         ref int pc, List<byte> extraBytesUsed, int? size = null)
     {
         var register = (instruction >> 9) & 0b111;
@@ -73,9 +74,7 @@ public static class InstructionUtilities
         return ParseAddress(hunk, hunkSectionId, ref pc, extraBytesUsed, mode, register, size);
     }
 
-    // This is going to be fun. Replace this and all downstream methods
-    // to return BaseAddress
-    public static string ParseSourceAddress(int instruction, Hunk hunk, int hunkSectionId,
+    public static BaseAddress ParseSourceAddress(int instruction, Hunk hunk, int hunkSectionId,
         ref int pc, List<byte> extraBytesUsed, int? size = null)
     {
         var mode = (instruction >> 3) & 0b111;
@@ -83,7 +82,7 @@ public static class InstructionUtilities
         return ParseAddress(hunk, hunkSectionId, ref pc, extraBytesUsed, mode, register, size);
     }
 
-    private static string ParseAddress(Hunk hunk, int hunkSectionId,
+    private static BaseAddress ParseAddress(Hunk hunk, int hunkSectionId,
         ref int pc, List<byte> extraBytesUsed, int mode, int register, int? size)
     {
         return mode switch
@@ -134,37 +133,38 @@ public static class InstructionUtilities
             // points to refer to the correct offset from the library base pointer.
 
             // immediate
-            0b000 => $"D{register}", // set d register to specific value
-            0b001 => $"A{register}", // same for a
+            0b000 => new GenericStringAddress($"D{register}"), // set d register to specific value
+            0b001 => new GenericStringAddress($"A{register}"), // same for a
 
             // pointer (only a(ddress) registers)
-            0b010 => $"(A{register})", // "element pointed at" i.e. register holds address pointer
-            0b011 => $"(A{register})+", // "element pointed at", post-increment after doing operation
-            0b100 => $"-(A{register})", // pre-decrment address in register, "element pointed at"
+            0b010 => new GenericStringAddress($"(A{register})"), // "element pointed at" i.e. register holds address pointer
+            0b011 => new GenericStringAddress($"(A{register})+"), // "element pointed at", post-increment after doing operation
+            0b100 => new GenericStringAddress($"-(A{register})"), // pre-decrment address in register, "element pointed at"
 
-            0b101 => $"{FormatValue(ParseTwosComplementWord(hunk, hunkSectionId, ref pc, extraBytesUsed))}(A{register})",
+            0b101 =>
+                new GenericStringAddress($"{FormatValue(ParseTwosComplementWord(hunk, hunkSectionId, ref pc, extraBytesUsed))}(A{register})"),
             0b110 => ParseMode110(hunk, hunkSectionId, ref pc, extraBytesUsed, register),
             0b111 when (register & 0b111) == 0b000 =>
-                $"${ParseWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X4}",
+                new GenericStringAddress($"${ParseWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X4}"),
             0b111 when (register & 0b111) == 0b001 =>
-                $"#${ParseLongWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X8}",
+                new GenericStringAddress($"#${ParseLongWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X8}"),
             0b111 when (register & 0b111) == 0b100 =>
                 Parse_Mode111_Register100(hunk, hunkSectionId, ref pc, extraBytesUsed, size),
             0b111 when (register & 0b111) == 0b010 =>
-                $"${ParseTwosComplementWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X}(PC)",
+                new GenericStringAddress($"${ParseTwosComplementWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X}(PC)"),
             // Missing: 0b111 0b011
-            _ => $"Unknown_mode_{mode:b3}_register_{register:b3}"
+            _ => new GenericStringAddress($"Unknown_mode_{mode:b3}_register_{register:b3}")
         };
     }
 
-    private static string Parse_Mode111_Register100(Hunk hunk, int hunkSectionId,
+    private static BaseAddress Parse_Mode111_Register100(Hunk hunk, int hunkSectionId,
         ref int pc, List<byte> extraBytesUsed, int? size)
     {
         if (size is null)
             throw new Exception("Size is required for Parsing Mode 111/Register 001");
         
         var sizeBits = size.Value & 0b11;
-        return "#" + sizeBits switch
+        var result = "#" + sizeBits switch
         {
             // For byte operation, grab 16 bits and only use last 8.
             0b01 => FormatValue(ParseWord(hunk, hunkSectionId, ref pc, extraBytesUsed) & 0b11111111, 2),
@@ -172,9 +172,10 @@ public static class InstructionUtilities
             0b10 => FormatValue(ParseLongWord(hunk, hunkSectionId, ref pc, extraBytesUsed), 8),
             _ => $"Unknown_{sizeBits:b2}"
         };
+        return new GenericStringAddress(result);
     }
 
-    private static string ParseMode110(Hunk hunk, int hunkSectionId,
+    private static BaseAddress ParseMode110(Hunk hunk, int hunkSectionId,
         ref int pc, List<byte> extraBytesUsed, int register)
     {
         var byte1 = ParseByte(hunk, hunkSectionId, ref pc, extraBytesUsed);
@@ -183,7 +184,7 @@ public static class InstructionUtilities
         var size = (byte1 & 0b1000) == 0b1000 ? ".L" : ".W";
         var dRegister = (byte1 >> 4) & 0b111;
 
-        return $"{FormatValue(byte2)}(A{register},D{dRegister}{size})";
+        return new GenericStringAddress($"{FormatValue(byte2)}(A{register},D{dRegister}{size})");
     }
 
     public static string FormatValue(int val, int? precision = null)

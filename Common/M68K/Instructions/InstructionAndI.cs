@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -10,7 +11,7 @@ public class InstructionAndI : BaseInstruction
 
     private int _value;
     private string _size;
-    private string _source;
+    private BaseAddress _source;
 
     public InstructionAndI(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {

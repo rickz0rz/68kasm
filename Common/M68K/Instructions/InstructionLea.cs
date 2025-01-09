@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -7,9 +8,9 @@ public sealed class InstructionLea : BaseInstruction
     private const string InstructionName = "LEA";
     private const int InstMask = 0b1111000111000000;
     private const int InstMaskTarget = 0b0100000111000000;
-    
-    private string _destRegister;
-    private string _srcAddress;
+
+    private BaseAddress _srcAddress;
+    private BaseAddress _destRegister;
 
     public InstructionLea(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {
@@ -22,7 +23,7 @@ public sealed class InstructionLea : BaseInstruction
 
     public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
-        _destRegister = $"A{(Instruction >> 9) & 0b111}";
+        _destRegister = new GenericStringAddress($"A{(Instruction >> 9) & 0b111}");
 
         var addressingMode = (Instruction >> 3) & 0b111;
         var addressingModeRegister = Instruction & 0b111;
@@ -43,7 +44,7 @@ public sealed class InstructionLea : BaseInstruction
                               ExtraInstructionBytes[2] * 256 +
                               ExtraInstructionBytes[3];
 
-                _srcAddress = $"${address:X8}";
+                _srcAddress = new GenericStringAddress($"${address:X8}");
                 break;
             default:
                 _srcAddress = InstructionUtilities.ParseSourceAddress(Instruction, hunk, hunkSectionNumber, ref pc, ExtraInstructionBytes);

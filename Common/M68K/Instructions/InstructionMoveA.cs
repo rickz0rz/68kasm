@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -8,11 +9,16 @@ public class InstructionMoveA : BaseInstruction
     private const string InstructionName = "MOVEA";
     private const int InstMask = 0b1100000111000000;
     private const int InstMaskTarget = 0b0000000001000000;
-    private string _source;
-    private string _destRegister;
+    private BaseAddress _source;
+    private BaseAddress _destRegister;
 
     public InstructionMoveA(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {
+        // Hardcoded comment test.
+        if (Address == 0x4)
+        {
+            Comments.Add("Move A0 to A2... argv?");
+        }
     }
 
     public static bool IsInstruction(int instruction)
@@ -24,23 +30,9 @@ public class InstructionMoveA : BaseInstruction
 
     public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
-        /*
-        var sourceAddressingMode = (Instruction >> 3) & 0b111;
-        _source = sourceAddressingMode switch
-        {
-            0b000 => $"D{Instruction & 0b111}",
-            0b001 => $"A{Instruction & 0b111}",
-            0b111 => InstructionUtilities.ParseSourceAddress(Instruction, hunk, hunkSectionNumber, ref pc,
-                ExtraInstructionBytes),
-            _ => $"D-UnknownSrcAddrMode_{sourceAddressingMode:X}"
-        };
-
-        _destRegister = $"A{(Instruction >> 9) & 0b111}";
-        */
-
         _source = InstructionUtilities.ParseSourceAddress(Instruction, hunk, hunkSectionNumber, ref pc,
             ExtraInstructionBytes);
-        _destRegister = $"A{(Instruction >> 9) & 0b111}";
+        _destRegister = new GenericStringAddress($"A{(Instruction >> 9) & 0b111}");
     }
 
     public override string ToAssembly()

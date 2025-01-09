@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -11,7 +12,7 @@ public sealed class InstructionMoveM : BaseInstruction
     private readonly List<string> _registers;
     private int _dr;
     private string _size;
-    private string _operationMemoryAddress;
+    private BaseAddress _operationMemoryAddress;
     
     public InstructionMoveM(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {

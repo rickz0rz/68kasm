@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -11,8 +12,8 @@ public class InstructionLsl : BaseInstruction
 
     private bool _isRegisterShift;
     private string _size;
-    private string _src;
-    private string _dest;
+    private BaseAddress _src;
+    private BaseAddress _dest;
 
     public InstructionLsl(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {
@@ -49,8 +50,8 @@ public class InstructionLsl : BaseInstruction
 
             var srcBits = (Instruction >> 9) & 0b111;
             var srcCount = srcBits == 0 ? 8 : srcBits;
-            _src = $"#{srcCount}";
-            _dest = $"D{Instruction & 0b111}";
+            _src = new GenericStringAddress($"#{srcCount}");
+            _dest = new GenericStringAddress($"D{Instruction & 0b111}");
             _isRegisterShift = true;
         }
     }

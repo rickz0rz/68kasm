@@ -11,6 +11,7 @@ public class BaseInstruction
 
     // Label should probably be a list created post-disassembly before it's printed out.
     public string? Label { get; set; }
+    public List<string> Comments { get; set; } = new List<string>();
     public int HunkSectionNumber { get; set; }
     public int Address { get; set; }
     public int Instruction { get; set; }

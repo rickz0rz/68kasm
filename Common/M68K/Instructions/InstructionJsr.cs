@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -11,8 +12,7 @@ public class InstructionJsr : BaseInstruction
     // for the address referenced, we should check which section it's in and adjust accordingly
     // in the next offsets
 
-    // Change this to an abstract type..?
-    private string _source;
+    private BaseAddress _source;
 
     public InstructionJsr(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {

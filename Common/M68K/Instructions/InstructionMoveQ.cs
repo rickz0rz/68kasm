@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
 
@@ -10,7 +11,7 @@ public class InstructionMoveQ : BaseInstruction
     private const int InstMaskTarget = 0b0111000000000000;
     
     private int _value;
-    private string _destRegister;
+    private BaseAddress _destRegister;
     
     public InstructionMoveQ(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {
@@ -23,7 +24,7 @@ public class InstructionMoveQ : BaseInstruction
 
     public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
-        _destRegister = $"D{Instruction >> 9 & 0b111}";
+        _destRegister = new GenericStringAddress($"D{Instruction >> 9 & 0b111}");
         _value = Instruction & 0xFF; // this may be two's compliment.
     }
 

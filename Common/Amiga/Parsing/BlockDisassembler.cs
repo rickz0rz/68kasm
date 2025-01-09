@@ -60,7 +60,25 @@ public class BlockDisassembler
             {
                 if (instructionAddress.SectionNumber == hunkSectionNumber)
                 {
-                    stringBuilder.AppendLine(instructionMap[instructionAddress].ToString());
+                    var instruction = instructionMap[instructionAddress];
+
+                    // Maybe can do something where if it's less than 1, make the comment inline.
+                    if (instruction.Comments.Count > 1)
+                    {
+                        foreach (var comment in instruction.Comments)
+                        {
+                            stringBuilder.AppendLine($"; {comment}");
+                        }
+                    }
+
+                    stringBuilder.Append(instruction);
+
+                    if (instruction.Comments.Count == 1)
+                    {
+                        stringBuilder.Append($" ;; {instruction.Comments.First()}");
+                    }
+
+                    stringBuilder.AppendLine();
                 }
             }
 
