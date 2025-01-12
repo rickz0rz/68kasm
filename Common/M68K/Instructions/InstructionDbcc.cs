@@ -43,9 +43,9 @@ public class InstructionDbcc : BaseInstruction
             _ => throw new Exception($"Unhandled condition bits: {conditionBits:b4}")
         };
         
-        _counterRegister = new GenericStringAddress($"D{Instruction & 0b111}");
+        _counterRegister = new GenericString($"D{Instruction & 0b111}");
         _displacement =
-            new GenericStringAddress(InstructionUtilities.ParseTwosComplementWord(hunk, hunkSectionNumber, ref pc, ExtraInstructionBytes).ToString());
+            new GenericString(InstructionUtilities.ParseTwosComplementWord(hunk, hunkSectionNumber, ref pc, ExtraInstructionBytes).ToString());
     }
 
     public override string ToAssembly()

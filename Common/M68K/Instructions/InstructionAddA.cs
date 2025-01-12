@@ -33,7 +33,7 @@ public class InstructionAddA : BaseInstruction
             0b111 => ".L",
             _ => $".Unknown_{(Instruction >> 6) & 0b11:b2}"
         };
-        _register = new GenericStringAddress($"A{(Instruction >> 9) & 0b111}");
+        _register = new GenericString($"A{(Instruction >> 9) & 0b111}");
         _source = InstructionUtilities.ParseSourceAddress(Instruction, hunk, hunkSectionNumber, ref pc,
             ExtraInstructionBytes);
     }

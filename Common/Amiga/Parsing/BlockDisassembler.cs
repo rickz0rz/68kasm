@@ -60,6 +60,11 @@ public class BlockDisassembler
             {
                 if (instructionAddress.SectionNumber == hunkSectionNumber)
                 {
+                    if (hunk.Labels.ContainsKey(instructionAddress))
+                    {
+                        stringBuilder.AppendLine($"{hunk.Labels[instructionAddress]}:");
+                    }
+
                     var instruction = instructionMap[instructionAddress];
 
                     // Maybe can do something where if it's less than 1, make the comment inline.

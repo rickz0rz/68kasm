@@ -6,13 +6,17 @@ namespace Common.M68K.Instructions;
 // https://mrjester.hapisan.com/04_MC68/Sect06Part03/Index.html
 public class InstructionBcc : BaseInstruction
 {
-    private const string InstructionNameBra = "BRA";
-    private const string InstructionNameBne = "BNE";
-    private const string InstructionNameBeq = "BEQ";
+    private enum BccInstructionVariation
+    {
+        BRA,
+        BNE,
+        BEQ
+    };
+
     private const int InstMask = 0b11110000000000000;
     private const int InstMaskTarget = 0b0110000000000000;
 
-    private string _instructionName;
+    private BccInstructionVariation _instructionName;
     private string _size;
     private int _displacement;
     
@@ -22,8 +26,8 @@ public class InstructionBcc : BaseInstruction
 
     public static bool IsInstruction(string opcode)
     {
-        return new[] { InstructionNameBra, InstructionNameBne, InstructionNameBeq }
-            .Any(opcode => opcode.Equals(opcode, StringComparison.InvariantCultureIgnoreCase));
+        return Enum.GetValues<BccInstructionVariation>()
+            .Any(variation => opcode.Equals(variation.ToString(), StringComparison.OrdinalIgnoreCase));
     }
     
     public static bool IsInstruction(int instruction)
@@ -36,10 +40,10 @@ public class InstructionBcc : BaseInstruction
         var conditionBits = (Instruction >> 8) & 0b1111;
         _instructionName = conditionBits switch
         {
-            0b0000 => InstructionNameBra, // Unconditional branch
-            0b0110 => InstructionNameBne, // Not equal ... to zero? Do you have to do a CMP first?
-            0b0111 => InstructionNameBeq, // Equal
-            _ => $"BRCC_UNSUPPORTED_{conditionBits:b4}"
+            0b0000 => BccInstructionVariation.BRA, // Unconditional branch
+            0b0110 => BccInstructionVariation.BNE, // Not equal ... to zero? Do you have to do a CMP first?
+            0b0111 => BccInstructionVariation.BEQ, // Equal
+            _ => throw new Exception($"Unhandled condition bits: {conditionBits:b4}")
         };
         
         _displacement = (Instruction & 0xFF);
@@ -53,6 +57,37 @@ public class InstructionBcc : BaseInstruction
             _displacement = InstructionUtilities.ConvertTwosComplementByte(_displacement);
             _size = ".S";
         }
+
+        Console.WriteLine($"[{Address:X6}] {_instructionName} -> Branch to 0x{_displacement:X6}");
+    }
+
+    public override List<SectionAddress> GetNextOffsetAddresses()
+    {
+        var addresses = new List<SectionAddress>();
+
+        // Address + offset.
+        var jumpOffset = Address + 2 + ExtraInstructionBytes.Count + _displacement;
+        // Console.WriteLine($"; [{HunkSectionNumber}] 0x{Address:X6}: {_instructionName}: Processing jump offset 0x{jumpOffset:X8}");
+        addresses.Add(new SectionAddress()
+        {
+            SectionNumber = HunkSectionNumber,
+            Address = jumpOffset
+        });
+
+        // BRA is "always branch", so we'll never fall-through.
+        if (_instructionName != BccInstructionVariation.BRA)
+        {
+            // Since this is just a fall-through from a branch, don't add it as a label.
+            // var fallThroughOffset = Address + 2 + ExtraInstructionBytes.Count;
+            // Console.WriteLine($"; [{HunkSectionNumber}] 0x{Address:X6}: {_instructionName}: Processing fall-through offset 0x{fallThroughOffset:X8}");
+            addresses.Add(new SectionAddress()
+            {
+                SectionNumber = HunkSectionNumber,
+                Address = Address + 2 + ExtraInstructionBytes.Count
+            });
+        }
+
+        return addresses;
     }
 
     public override string ToAssembly()

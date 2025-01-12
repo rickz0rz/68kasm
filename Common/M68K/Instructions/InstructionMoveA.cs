@@ -10,7 +10,7 @@ public class InstructionMoveA : BaseInstruction
     private const int InstMask = 0b1100000111000000;
     private const int InstMaskTarget = 0b0000000001000000;
     private BaseAddress _source;
-    private BaseAddress _destRegister;
+    private BaseAddress _destination;
 
     public InstructionMoveA(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {
@@ -32,12 +32,12 @@ public class InstructionMoveA : BaseInstruction
     {
         _source = InstructionUtilities.ParseSourceAddress(Instruction, hunk, hunkSectionNumber, ref pc,
             ExtraInstructionBytes);
-        _destRegister = new GenericStringAddress($"A{(Instruction >> 9) & 0b111}");
+        _destination = new Immediate($"A{(Instruction >> 9) & 0b111}");
     }
 
     public override string ToAssembly()
     {
         // Is this size dynamic? It is... bits 13 and 12. Copy from MoveM?
-        return $"{InstructionName}.L {_source},{_destRegister}";
+        return $"{InstructionName}.L {_source},{_destination}";
     }
 }

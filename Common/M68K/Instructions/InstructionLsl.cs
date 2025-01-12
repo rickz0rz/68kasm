@@ -50,8 +50,8 @@ public class InstructionLsl : BaseInstruction
 
             var srcBits = (Instruction >> 9) & 0b111;
             var srcCount = srcBits == 0 ? 8 : srcBits;
-            _src = new GenericStringAddress($"#{srcCount}");
-            _dest = new GenericStringAddress($"D{Instruction & 0b111}");
+            _src = new GenericString($"#{srcCount}");
+            _dest = new GenericString($"D{Instruction & 0b111}");
             _isRegisterShift = true;
         }
     }

@@ -1,10 +1,10 @@
 namespace Common.M68K.Addresses;
 
-public class GenericStringAddress : BaseAddress
+public class GenericString : BaseAddress
 {
     private string _value;
 
-    public GenericStringAddress(string value) : base()
+    public GenericString(string value) : base()
     {
         _value = value;
     }

@@ -133,27 +133,27 @@ public static class InstructionUtilities
             // points to refer to the correct offset from the library base pointer.
 
             // immediate
-            0b000 => new GenericStringAddress($"D{register}"), // set d register to specific value
-            0b001 => new GenericStringAddress($"A{register}"), // same for a
+            0b000 => new Immediate($"D{register}"), // set d register to specific value
+            0b001 => new Immediate($"A{register}"), // same for a
 
             // pointer (only a(ddress) registers)
-            0b010 => new GenericStringAddress($"(A{register})"), // "element pointed at" i.e. register holds address pointer
-            0b011 => new GenericStringAddress($"(A{register})+"), // "element pointed at", post-increment after doing operation
-            0b100 => new GenericStringAddress($"-(A{register})"), // pre-decrment address in register, "element pointed at"
+            0b010 => new Indirect($"A{register}", Indirect.IndirectAddressType.None), // "element pointed at" i.e. register holds address pointer
+            0b011 => new Indirect($"A{register}", Indirect.IndirectAddressType.PostIncrement), // "element pointed at", post-increment after doing operation
+            0b100 => new Indirect($"A{register}", Indirect.IndirectAddressType.PreDecrement), // pre-decrment address in register, "element pointed at"
 
             0b101 =>
-                new GenericStringAddress($"{FormatValue(ParseTwosComplementWord(hunk, hunkSectionId, ref pc, extraBytesUsed))}(A{register})"),
+                new GenericString($"{FormatValue(ParseTwosComplementWord(hunk, hunkSectionId, ref pc, extraBytesUsed))}(A{register})"),
             0b110 => ParseMode110(hunk, hunkSectionId, ref pc, extraBytesUsed, register),
             0b111 when (register & 0b111) == 0b000 =>
-                new GenericStringAddress($"${ParseWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X4}"),
+                new GenericString($"${ParseWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X4}"),
             0b111 when (register & 0b111) == 0b001 =>
-                new GenericStringAddress($"#${ParseLongWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X8}"),
+                new GenericString($"#${ParseLongWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X8}"),
             0b111 when (register & 0b111) == 0b100 =>
                 Parse_Mode111_Register100(hunk, hunkSectionId, ref pc, extraBytesUsed, size),
             0b111 when (register & 0b111) == 0b010 =>
-                new GenericStringAddress($"${ParseTwosComplementWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X}(PC)"),
+                new ProgramCounterIndirectWithDisplacement(hunkSectionId, ParseTwosComplementWord(hunk, hunkSectionId, ref pc, extraBytesUsed)),
             // Missing: 0b111 0b011
-            _ => new GenericStringAddress($"Unknown_mode_{mode:b3}_register_{register:b3}")
+            _ => new GenericString($"Unknown_mode_{mode:b3}_register_{register:b3}")
         };
     }
 
@@ -172,7 +172,7 @@ public static class InstructionUtilities
             0b10 => FormatValue(ParseLongWord(hunk, hunkSectionId, ref pc, extraBytesUsed), 8),
             _ => $"Unknown_{sizeBits:b2}"
         };
-        return new GenericStringAddress(result);
+        return new GenericString(result);
     }
 
     private static BaseAddress ParseMode110(Hunk hunk, int hunkSectionId,
@@ -184,7 +184,7 @@ public static class InstructionUtilities
         var size = (byte1 & 0b1000) == 0b1000 ? ".L" : ".W";
         var dRegister = (byte1 >> 4) & 0b111;
 
-        return new GenericStringAddress($"{FormatValue(byte2)}(A{register},D{dRegister}{size})");
+        return new GenericString($"{FormatValue(byte2)}(A{register},D{dRegister}{size})");
     }
 
     public static string FormatValue(int val, int? precision = null)

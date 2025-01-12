@@ -23,7 +23,7 @@ public sealed class InstructionLea : BaseInstruction
 
     public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
-        _destRegister = new GenericStringAddress($"A{(Instruction >> 9) & 0b111}");
+        _destRegister = new GenericString($"A{(Instruction >> 9) & 0b111}");
 
         var addressingMode = (Instruction >> 3) & 0b111;
         var addressingModeRegister = Instruction & 0b111;
@@ -44,7 +44,7 @@ public sealed class InstructionLea : BaseInstruction
                               ExtraInstructionBytes[2] * 256 +
                               ExtraInstructionBytes[3];
 
-                _srcAddress = new GenericStringAddress($"${address:X8}");
+                _srcAddress = new GenericString($"${address:X8}");
                 break;
             default:
                 _srcAddress = InstructionUtilities.ParseSourceAddress(Instruction, hunk, hunkSectionNumber, ref pc, ExtraInstructionBytes);

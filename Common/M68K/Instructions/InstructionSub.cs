@@ -27,7 +27,7 @@ public class InstructionSub : BaseInstruction
 
     public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
-        _register = new GenericStringAddress($"D{Instruction >> 9 & 3}");
+        _register = new GenericString($"D{Instruction >> 9 & 3}");
         
         _size = ((Instruction >> 6) & 0b11) switch
         {
