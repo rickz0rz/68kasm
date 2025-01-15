@@ -6,6 +6,8 @@ namespace Common.Amiga.Parsing;
 
 public class BlockDisassembler
 {
+    public static DisassemblerOptions Options { get; } = new DisassemblerOptions();
+
     public static string Disassemble(Hunk hunk)
     {
         // Todo:
@@ -90,6 +92,9 @@ public class BlockDisassembler
             hunkSectionNumber++;
             stringBuilder.AppendLine();
         }
+
+        if (Options.DebugPrint)
+            Console.WriteLine();
 
         return stringBuilder.ToString();
     }

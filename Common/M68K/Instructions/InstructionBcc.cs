@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.Amiga.Parsing;
 
 namespace Common.M68K.Instructions;
 
@@ -80,7 +81,8 @@ public class InstructionBcc : BaseInstruction
             _size = ".S";
         }
 
-        Console.WriteLine($"[{Address:X6}] {_instructionName} -> Branch to 0x{_displacement:X6}");
+        if (BlockDisassembler.Options.DebugPrint)
+            Console.WriteLine($"[{Address:X6}] {_instructionName} -> Branch to 0x{_displacement:X6}");
     }
 
     public override List<SectionAddress> GetNextOffsetAddresses()
@@ -89,7 +91,10 @@ public class InstructionBcc : BaseInstruction
 
         // Address + offset.
         var jumpOffset = Address + 2 + ExtraInstructionBytes.Count + _displacement;
-        // Console.WriteLine($"; [{HunkSectionNumber}] 0x{Address:X6}: {_instructionName}: Processing jump offset 0x{jumpOffset:X8}");
+
+        if (BlockDisassembler.Options.DebugPrint)
+            Console.WriteLine($"; [{HunkSectionNumber}] 0x{Address:X6}: {_instructionName}: Processing jump offset 0x{jumpOffset:X8}");
+
         addresses.Add(new SectionAddress()
         {
             SectionNumber = HunkSectionNumber,

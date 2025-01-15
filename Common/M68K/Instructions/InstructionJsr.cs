@@ -1,4 +1,5 @@
 using Common.Amiga;
+using Common.Amiga.Parsing;
 using Common.M68K.Addresses;
 
 namespace Common.M68K.Instructions;
@@ -37,14 +38,18 @@ public class InstructionJsr : BaseInstruction
         _source = InstructionUtilities.ParseSourceAddress(Instruction, hunk, hunkSectionNumber, ref pc,
             ExtraInstructionBytes);
 
-        Console.WriteLine($"[{Address:X6}] JSR -> Jump to {_source} ({_source.GetType()})");
+        if (BlockDisassembler.Options.DebugPrint)
+            Console.WriteLine($"[{Address:X6}] JSR -> Jump to {_source} ({_source.GetType()})");
 
         var addressesToCheck = new List<int>();
 
         if (_source is ProgramCounterIndirectWithDisplacement pcIndirect)
         {
             var adjusted = Address + 2 + ExtraInstructionBytes.Count + pcIndirect.Displacement;
-            // Console.WriteLine($"; [{HunkSectionNumber}] 0x{Address:X6}: Checking PC indirect 0x{adjusted:X8} with displacement tables");
+
+            if (BlockDisassembler.Options.DebugPrint)
+                Console.WriteLine($"; [{HunkSectionNumber}] 0x{Address:X6}: Checking PC indirect 0x{adjusted:X8} with displacement tables");
+
             addressesToCheck.Add(adjusted);
         }
         else if (_source is IndirectWithDisplacement)
