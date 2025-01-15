@@ -147,7 +147,7 @@ public static class InstructionUtilities
             0b111 when (register & 0b111) == 0b000 =>
                 new GenericString($"${ParseWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X4}"),
             0b111 when (register & 0b111) == 0b001 =>
-                new GenericString($"#${ParseLongWord(hunk, hunkSectionId, ref pc, extraBytesUsed):X8}"),
+                Parse_Mode111_Register001(hunk, hunkSectionId, ref pc, extraBytesUsed),
             0b111 when (register & 0b111) == 0b100 =>
                 Parse_Mode111_Register100(hunk, hunkSectionId, ref pc, extraBytesUsed, size),
             0b111 when (register & 0b111) == 0b010 =>
@@ -155,6 +155,27 @@ public static class InstructionUtilities
             // Missing: 0b111 0b011
             _ => new GenericString($"Unknown_mode_{mode:b3}_register_{register:b3}")
         };
+    }
+
+    private static BaseAddress Parse_Mode111_Register001(Hunk hunk, int hunkSectionId,
+        ref int pc, List<byte> extraBytesUsed)
+    {
+        // Before we parse the address, see if it is a relocation table.
+        var targetAddressPc = pc;
+
+        var relocationTableId = hunkSectionId;
+
+        foreach (var relocationTable in hunk.HunkSections[hunkSectionId].RelocationTables)
+        {
+            if (!relocationTable.Value.Contains(targetAddressPc))
+                continue;
+
+            relocationTableId = relocationTable.Key;
+            break;
+        }
+
+        var address = ParseLongWord(hunk, hunkSectionId, ref pc, extraBytesUsed);
+        return new AbsoluteAddress(relocationTableId, address);
     }
 
     private static BaseAddress Parse_Mode111_Register100(Hunk hunk, int hunkSectionId,

@@ -34,7 +34,17 @@ public class InstructionJmp : BaseInstruction
     }
 
     // Before I do this, I need to parse out the address into a int value
-    // public override List<SectionAddress> GetNextOffsetAddresses()
+    public override List<SectionAddress> GetNextOffsetAddresses()
+    {
+        var result = new List<SectionAddress>();
+
+        if (_src is AbsoluteAddress absoluteAddress)
+        {
+            result.Add(absoluteAddress.SectionAddress);
+        }
+
+        return result;
+    }
 
     public override string ToAssembly()
     {

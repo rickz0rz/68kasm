@@ -12,6 +12,7 @@ class Program
 
         var homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         var binaryPath = Path.Combine(homeDirectory, "Downloads", "Amiga68kTest.bin");
+        BlockDisassembler.Options.DebugPrint = true;
         var disassembly = BlockDisassembler.Disassemble(HunkParser.Parse(binaryPath));
 
         Console.WriteLine(disassembly);

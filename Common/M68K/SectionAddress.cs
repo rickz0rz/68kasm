@@ -8,6 +8,6 @@ public sealed record SectionAddress
 
     public override string ToString()
     {
-        return $"[{SectionNumber}]{Address}";
+        return $"#$[{SectionNumber}]{Address:X8}";
     }
 }
