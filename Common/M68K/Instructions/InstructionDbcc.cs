@@ -12,8 +12,8 @@ public class InstructionDbcc : BaseInstruction
         DBF
     };
 
-    private const int InstMask = 0b1111000011111000;
-    private const int InstMaskTarget = 0b0101000011001000;
+    private const int InstMask = 0b1111_0000_1111_1000;
+    private const int InstMaskTarget = 0b0101_0000_1100_1000;
     
     private DbccInstructionVariation _dbccInstructionName;
     private BaseAddress _counterRegister;

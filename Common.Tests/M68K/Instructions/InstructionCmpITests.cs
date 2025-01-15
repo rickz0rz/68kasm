@@ -1,12 +1,8 @@
-using System.Reflection;
-
 namespace Common.Tests.M68K.Instructions;
 
-public class InstructionBrccTests
+public class InstructionCmpITests
 {
-    [TestCase("BRA.S 2", "6002")]
-    [TestCase("BNE.S 6", "6606")]
-    [TestCase("BGE.S 8", "6C08")]
+    [TestCase("CMPI.L #$000927C0,D0", "0C80000927C0")]
     public void RunFullTest(string assembly, string bytesString)
     {
         TestHelpers.RunFullTest(assembly, bytesString);

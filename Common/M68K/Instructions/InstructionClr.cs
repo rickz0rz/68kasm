@@ -6,8 +6,8 @@ namespace Common.M68K.Instructions;
 public class InstructionClr : BaseInstruction
 {
     private const string InstructionName = "CLR";
-    private const int InstMask = 0b1111111100000000;
-    private const int InstMaskTarget = 0b0100001000000000;
+    private const int InstMask = 0b1111_1111_0000_0000;
+    private const int InstMaskTarget = 0b0100_0010_0000_0000;
 
     private string _size;
     private BaseAddress _source;

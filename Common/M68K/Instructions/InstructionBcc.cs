@@ -9,8 +9,20 @@ public class InstructionBcc : BaseInstruction
     private enum BccInstructionVariation
     {
         BRA,
+        BCC,
+        BCS,
+        BEQ,
+        BGE,
+        BGT,
+        BHI,
+        BLE,
+        BLS,
+        BLT,
+        BMI,
         BNE,
-        BEQ
+        BPL,
+        BVC,
+        BVS
     };
 
     private const int InstMask = 0b11110000000000000;
@@ -41,8 +53,18 @@ public class InstructionBcc : BaseInstruction
         _instructionName = conditionBits switch
         {
             0b0000 => BccInstructionVariation.BRA, // Unconditional branch
-            0b0110 => BccInstructionVariation.BNE, // Not equal ... to zero? Do you have to do a CMP first?
+            0b0100 => BccInstructionVariation.BCC, // Carry clear
             0b0111 => BccInstructionVariation.BEQ, // Equal
+            0b1100 => BccInstructionVariation.BGE, // Greater/equal
+            0b0010 => BccInstructionVariation.BHI, // High
+            0b1111 => BccInstructionVariation.BLE, // Less/equal
+            0b0011 => BccInstructionVariation.BLS, // Low or same
+            0b1101 => BccInstructionVariation.BLT, // Less than
+            0b1011 => BccInstructionVariation.BMI, // Minus
+            0b0110 => BccInstructionVariation.BNE, // Not equal
+            0b1010 => BccInstructionVariation.BPL, // Plus
+            0b1000 => BccInstructionVariation.BVC, // Overflow clear
+            0b1001 => BccInstructionVariation.BVS, // Overflow set
             _ => throw new Exception($"Unhandled condition bits: {conditionBits:b4}")
         };
         

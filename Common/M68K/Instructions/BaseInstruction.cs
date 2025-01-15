@@ -142,7 +142,7 @@ public class BaseInstruction
 
     public virtual void ParseSpecificInstruction(Hunk hunk, int hunkSectionId, ref int pc)
     {
-        throw new NotImplementedException($"Parse instruction not implemented yet: {Instruction:X4} @ 0x{pc:X6}");
+        throw new NotImplementedException($"Parse instruction not implemented yet: {Instruction:X4} @ 0x{Address:X6}");
     }
 
     public virtual string ToAssembly()

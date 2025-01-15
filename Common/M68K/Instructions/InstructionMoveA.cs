@@ -14,11 +14,6 @@ public class InstructionMoveA : BaseInstruction
 
     public InstructionMoveA(Hunk hunk, int hunkSectionNumber, ref int pc) : base(hunk, hunkSectionNumber, ref pc)
     {
-        // Hardcoded comment test.
-        if (Address == 0x4)
-        {
-            Comments.Add("Move A0 to A2... argv?");
-        }
     }
 
     public static bool IsInstruction(int instruction)
