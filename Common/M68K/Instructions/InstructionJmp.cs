@@ -33,7 +33,6 @@ public class InstructionJmp : BaseInstruction
             ExtraInstructionBytes);
     }
 
-    // Before I do this, I need to parse out the address into a int value
     public override List<SectionAddress> GetNextOffsetAddresses()
     {
         var result = new List<SectionAddress>();
