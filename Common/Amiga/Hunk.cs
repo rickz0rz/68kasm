@@ -11,7 +11,7 @@ public class Hunk
     public Dictionary<SectionAddress, string> Labels { get; set; }
     public int FirstHunkSection { get; set; }
     public int LastHunkSection { get; set; }
-    public List<int> HunkSectionSizes { get; set; } // These may not reflect the actual hunks' sizes.. pad with zeros.
+    public List<int> HunkSectionSizes { get; set; } // These may not reflect the actual hunks' sizes.. pad with zeros. Is this even necessary?
     public List<HunkSection> HunkSections { get; set; }
 
     public Hunk()

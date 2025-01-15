@@ -6,7 +6,7 @@ namespace Common.Amiga.Parsing;
 
 public class BlockDisassembler
 {
-    public static DisassemblerOptions Options { get; } = new DisassemblerOptions();
+    public static DisassemblerOptions Options { get; } = new();
 
     public static string Disassemble(Hunk hunk)
     {
@@ -40,11 +40,7 @@ public class BlockDisassembler
             stringBuilder.AppendLine($"SECTION_{hunkSectionNumber},{sectionTypeString}{sectionTypeMemory}");
             stringBuilder.AppendLine("; -------------");
 
-            // Iterate through the instructions.
-            var offset = 0;
-            var shouldContinue = true;
-
-            // Start the instruction parsing.
+            // Start the instruction parsing, iterating through each one
             try
             {
                 // Only start this on section 0, section 1+ doesn't auto-start @ 0x0
@@ -62,9 +58,9 @@ public class BlockDisassembler
             {
                 if (instructionAddress.SectionNumber == hunkSectionNumber)
                 {
-                    if (hunk.Labels.ContainsKey(instructionAddress))
+                    if (hunk.Labels.TryGetValue(instructionAddress, out var label))
                     {
-                        stringBuilder.AppendLine($"{hunk.Labels[instructionAddress]}:");
+                        stringBuilder.AppendLine($"{label}:");
                     }
 
                     var instruction = instructionMap[instructionAddress];
