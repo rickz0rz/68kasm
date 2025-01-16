@@ -90,7 +90,9 @@ public class InstructionBcc : BaseInstruction
         var addresses = new List<SectionAddress>();
 
         // Address + offset.
-        var jumpOffset = Address + 2 + ExtraInstructionBytes.Count + _displacement;
+        // var jumpOffset = Address + 2 + ExtraInstructionBytes.Count + _displacement;
+        // TODO: Verify displacement is off post-instruction address, not counting extra bytes.
+        var jumpOffset = Address + 2 + _displacement;
 
         if (BlockDisassembler.Options.DebugPrint)
             Console.WriteLine($"; [{HunkSectionNumber}] 0x{Address:X6}: {_instructionName}: Processing jump offset 0x{jumpOffset:X8}");
