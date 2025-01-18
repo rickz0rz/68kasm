@@ -23,7 +23,8 @@ public class InstructionBcc : BaseInstruction
         BNE,
         BPL,
         BVC,
-        BVS
+        BVS,
+        BSR
     };
 
     private const int InstMask = 0b11110000000000000;
@@ -54,9 +55,12 @@ public class InstructionBcc : BaseInstruction
         _instructionName = conditionBits switch
         {
             0b0000 => BccInstructionVariation.BRA, // Unconditional branch
+            0b0001 => BccInstructionVariation.BSR, // Branch SubRoutine
             0b0100 => BccInstructionVariation.BCC, // Carry clear
+            0b0101 => BccInstructionVariation.BCS, // Carry set
             0b0111 => BccInstructionVariation.BEQ, // Equal
             0b1100 => BccInstructionVariation.BGE, // Greater/equal
+            0b1110 => BccInstructionVariation.BGT, // Greater than
             0b0010 => BccInstructionVariation.BHI, // High
             0b1111 => BccInstructionVariation.BLE, // Less/equal
             0b0011 => BccInstructionVariation.BLS, // Low or same
@@ -66,7 +70,7 @@ public class InstructionBcc : BaseInstruction
             0b1010 => BccInstructionVariation.BPL, // Plus
             0b1000 => BccInstructionVariation.BVC, // Overflow clear
             0b1001 => BccInstructionVariation.BVS, // Overflow set
-            _ => throw new Exception($"Unhandled condition bits: {conditionBits:b4}")
+            _ => throw new Exception($"Bcc Unhandled condition bits: 0x{Address:X6} -> {conditionBits:b4}")
         };
         
         _displacement = (Instruction & 0xFF);
@@ -82,7 +86,7 @@ public class InstructionBcc : BaseInstruction
         }
 
         if (BlockDisassembler.Options.DebugPrint)
-            Console.WriteLine($"[{Address:X6}] {_instructionName} -> Branch to 0x{_displacement:X6}");
+            Console.WriteLine($"[{Address:X6}] {_instructionName} -> Branch to displacement +0x{_displacement:X6}");
     }
 
     public override List<SectionAddress> GetNextOffsetAddresses()
@@ -106,9 +110,6 @@ public class InstructionBcc : BaseInstruction
         // BRA is "always branch", so we'll never fall-through.
         if (_instructionName != BccInstructionVariation.BRA)
         {
-            // Since this is just a fall-through from a branch, don't add it as a label.
-            // var fallThroughOffset = Address + 2 + ExtraInstructionBytes.Count;
-            // Console.WriteLine($"; [{HunkSectionNumber}] 0x{Address:X6}: {_instructionName}: Processing fall-through offset 0x{fallThroughOffset:X8}");
             addresses.Add(new SectionAddress()
             {
                 SectionNumber = HunkSectionNumber,
