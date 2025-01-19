@@ -20,7 +20,7 @@ public class InstructionPea : BaseInstruction
         return (instruction & InstMask) == InstMaskTarget;
     }
 
-    public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public override void ProcessInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         _src = InstructionUtilities.ParseSourceAddress(Instruction, hunk, hunkSectionNumber, ref pc, ExtraInstructionBytes);
     }

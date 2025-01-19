@@ -29,7 +29,7 @@ public class InstructionOr : BaseInstruction
                addOpModes.Contains((byte)((instruction >> 6) & 0b111));
     }
 
-    public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public override void ProcessInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         var registerBits = (Instruction >> 9) & 0b111;
         _register = new DataRegister(registerBits);

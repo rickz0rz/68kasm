@@ -25,7 +25,7 @@ public class InstructionAdd : BaseInstruction
                addOpModes.Contains((byte)((instruction >> 6) & 0b111));
     }
 
-    public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public override void ProcessInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         _register = new GenericString($"D{Instruction >> 9 & 3}");
         

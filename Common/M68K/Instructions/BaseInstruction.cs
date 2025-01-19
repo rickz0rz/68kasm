@@ -4,10 +4,10 @@ using Common.Amiga;
 
 namespace Common.M68K.Instructions;
 
-public class BaseInstruction
+public class BaseInstruction : IInstruction
 {
-    private static readonly List<Type> _cachedInstructions = new List<Type>();
-    private const int _instructionLengthBits = 16;
+    private const int InstructionSizeBytes = 2;
+    private static readonly List<Type> CachedInstructions = [];
 
     // Label should probably be a list created post-disassembly before it's printed out.
     public string? Label { get; set; }
@@ -27,27 +27,31 @@ public class BaseInstruction
         Address = pc;
         HunkSectionNumber = hunkSectionNumber;
         Label = null;
-        Instruction = (hunk.HunkSections[hunkSectionNumber].Data[pc] << 8) +
-                      hunk.HunkSections[hunkSectionNumber].Data[pc + 1];
-        pc += 2;
+
+        Instruction = 0;
+        for (var i = 0; i < InstructionSizeBytes; i++)
+        {
+            Instruction = (Instruction << 8) | hunk.HunkSections[hunkSectionNumber].Data[pc];
+            pc++;
+        }
 
         ExtraInstructionBytes = [];
     }
 
     private static void CheckForCachedInstructions()
     {
-        if (_cachedInstructions.Count == 0)
-        {
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                var list = assembly.GetTypes().Where(t => typeof(BaseInstruction).IsAssignableFrom(t));
-                foreach (var type in list)
-                {
-                    if (type == typeof(BaseInstruction))
-                        continue;
+        if (CachedInstructions.Count != 0)
+            return;
 
-                    _cachedInstructions.Add(type);
-                }
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            var list = assembly.GetTypes().Where(t => typeof(BaseInstruction).IsAssignableFrom(t));
+            foreach (var type in list)
+            {
+                if (type == typeof(BaseInstruction))
+                    continue;
+
+                CachedInstructions.Add(type);
             }
         }
     }
@@ -68,7 +72,7 @@ public class BaseInstruction
         var opcodeBytes = (hunk.HunkSections[hunkSectionNumber].Data[pc] << 8) +
                           hunk.HunkSections[hunkSectionNumber].Data[pc + 1];
 
-        foreach (var cachedInstruction in _cachedInstructions)
+        foreach (var cachedInstruction in CachedInstructions)
         {
             var isMatchingInstruction = (bool)cachedInstruction.GetMethod("IsInstruction", [typeof(int)])
                 .Invoke(null, [opcodeBytes]);
@@ -85,13 +89,13 @@ public class BaseInstruction
             pc = (int)args[2];
 
             // Would be neat to make this somehow work from the base constructor?
-            foundInstruction.ParseSpecificInstruction(hunk, hunkSectionNumber, ref pc);
+            foundInstruction.ProcessInstruction(hunk, hunkSectionNumber, ref pc);
             return foundInstruction;
         }
 
-        var parsedInstruction = new BaseInstruction(hunk, hunkSectionNumber, ref pc);
-        parsedInstruction.ParseSpecificInstruction(hunk, hunkSectionNumber, ref pc);
-        return parsedInstruction;
+        var instruction = new BaseInstruction(hunk, hunkSectionNumber, ref pc);
+        instruction.ProcessInstruction(hunk, hunkSectionNumber, ref pc);
+        return instruction;
     }
 
     public static BaseInstruction FromAssembly(string assembly)
@@ -103,7 +107,7 @@ public class BaseInstruction
         var keywords = assembly.Split(new[] { ' ', '\n', '\t', ';'}, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var opcode = keywords.First();
         
-        foreach (var cachedInstruction in _cachedInstructions)
+        foreach (var cachedInstruction in CachedInstructions)
         {
             try
             {
@@ -140,7 +144,7 @@ public class BaseInstruction
         throw new NotImplementedException($"ToBytes not implemented yet: {Instruction:X4}");
     }
 
-    public virtual void ParseSpecificInstruction(Hunk hunk, int hunkSectionId, ref int pc)
+    public virtual void ProcessInstruction(Hunk hunk, int hunkSectionId, ref int pc)
     {
         throw new NotImplementedException($"Parse instruction not implemented yet: {Instruction:X4} @ 0x{Address:X6}");
     }
@@ -164,7 +168,7 @@ public class BaseInstruction
             new SectionAddress()
             {
                 SectionNumber = HunkSectionNumber,
-                Address = Address + 2 + ExtraInstructionBytes.Count
+                Address = Address + InstructionSizeBytes + ExtraInstructionBytes.Count
             }
         ];
     }

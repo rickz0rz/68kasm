@@ -24,7 +24,7 @@ public class InstructionSubA : BaseInstruction
                addOpModes.Contains((byte)((instruction >> 6) & 0b111));
     }
 
-    public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public override void ProcessInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         _size = ((Instruction >> 6) & 0b111) switch
         {

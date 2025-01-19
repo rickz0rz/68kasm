@@ -24,7 +24,7 @@ public sealed class InstructionMoveM : BaseInstruction
         return (instruction & InstMask) == InstMaskTarget;
     }
 
-    public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public override void ProcessInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         // dr, 0 = register to memory (predecrement); 1 = memory to register (postincrement)
         _dr = (Instruction >> 10) & 0b1;

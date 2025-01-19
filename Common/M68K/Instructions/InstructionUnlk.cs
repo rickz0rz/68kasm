@@ -20,7 +20,7 @@ public class InstructionUnlk : BaseInstruction
         return (instruction & InstMask) == InstMaskTarget;
     }
 
-    public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public override void ProcessInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         var registerBits = Instruction & 0b111;
         _register = new AddressRegister(registerBits);

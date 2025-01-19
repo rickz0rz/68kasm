@@ -22,7 +22,7 @@ public class InstructionMoveQ : BaseInstruction
         return (instruction & InstMask) == InstMaskTarget;
     }
 
-    public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public override void ProcessInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         _destRegister = new GenericString($"D{Instruction >> 9 & 0b111}");
         _value = Instruction & 0xFF; // this may be two's compliment.

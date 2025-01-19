@@ -2,7 +2,7 @@ namespace Common.Amiga.Parsing;
 
 public static class HunkParser
 {
-    public static Hunk Parse(String filename)
+    public static Hunk Parse(string filename)
     {
         Console.WriteLine($"Parsing file: {filename}");
         
@@ -100,8 +100,7 @@ public static class HunkParser
 
     private static int ConvertBytesToInt(IEnumerable<byte> bytes)
     {
-        // shift this
         var byteList = bytes.ToList();
-        return 16777216 * byteList[0] + 65536 * byteList[1] + 256 * byteList[2] + byteList[3];
+        return (byteList[0] << 24) | (byteList[1] << 16) | (byteList[2] << 8) | byteList[3];
     }
 }

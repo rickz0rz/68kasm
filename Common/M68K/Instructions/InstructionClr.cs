@@ -26,7 +26,7 @@ public class InstructionClr : BaseInstruction
         return (instruction & InstMask) == InstMaskTarget;
     }
 
-    public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public override void ProcessInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         var sizeBits = (Instruction >> 6) & 0b11;
         _size = sizeBits switch

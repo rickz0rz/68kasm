@@ -24,7 +24,7 @@ public class InstructionLsl : BaseInstruction
         return (instruction & InstMask) == InstMaskTarget;
     }
 
-    public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public override void ProcessInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         // if size = 0b11 then memory shift, otherwise it's a register shift.
         var sizeBits = (Instruction >> 6) & 0b11;

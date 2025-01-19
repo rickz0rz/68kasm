@@ -23,7 +23,7 @@ public class InstructionMoveA : BaseInstruction
                sizeModes.Contains((byte)((instruction >> 12) & 0b11));
     }
 
-    public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public override void ProcessInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         _source = InstructionUtilities.ParseSourceAddress(Instruction, hunk, hunkSectionNumber, ref pc,
             ExtraInstructionBytes);

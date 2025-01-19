@@ -49,7 +49,7 @@ public class InstructionBcc : BaseInstruction
         return ((instruction & InstMask) == InstMaskTarget) && !InstructionMoveQ.IsInstruction(instruction);
     }
 
-    public override void ParseSpecificInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
+    public override void ProcessInstruction(Hunk hunk, int hunkSectionNumber, ref int pc)
     {
         var conditionBits = (Instruction >> 8) & 0b1111;
         _instructionName = conditionBits switch
